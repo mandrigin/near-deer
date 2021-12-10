@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	resty "github.com/go-resty/resty/v2"
@@ -21,8 +22,8 @@ func main() {
 
 	r := gin.Default()
 	r.GET("/health", func(c *gin.Context) {
-		err := checkNodeHealth()
 		fmt.Println("DEBUG: initiating healthcheck")
+		err := checkNodeHealth()
 
 		if err == nil {
 			fmt.Println("INFO: node is healthy")
@@ -51,6 +52,8 @@ func checkNodeHealth() error {
 		return fmt.Errorf("can't get local node block number. err=%w", err)
 	}
 
+	fmt.Println("DEBUG", "sot", sourceOfTruthBlock, "local", localNodeBlock)
+
 	diff := sourceOfTruthBlock - localNodeBlock
 
 	if diff > *flagThreshold { //negative is fine
@@ -68,10 +71,14 @@ type StatusResult struct {
 }
 
 func getLatestBlockNumber(address string) (int, error) {
-	// Create a Resty Client
+	fmt.Println("DEBUG: checking block for address", address)
 	client := resty.New()
 
-	resp, err := client.R().SetResult(&StatusResult{}).Get(fmt.Sprintf("%s/status", address))
+	if !strings.HasSuffix(address, "/") {
+		address += "/"
+	}
+
+	resp, err := client.R().SetResult(&StatusResult{}).Get(fmt.Sprintf("%sstatus", address))
 	if err != nil {
 		return 0, err
 	}
