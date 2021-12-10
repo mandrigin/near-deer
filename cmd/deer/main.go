@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 
+	"github.com/gin-gonic/gin"
 	resty "github.com/go-resty/resty/v2"
 )
 
@@ -16,12 +17,21 @@ var (
 func main() {
 	flag.Parse()
 
-	fmt.Println("checking health", *flagNetwork, *flagNodeAddress)
+	r := gin.Default()
+	r.GET("/health", func(c *gin.Context) {
+		err := checkNodeHealth()
 
-	err := checkNodeHealth()
-	if err != nil {
-		fmt.Println("ERR: while checking health:", err)
-	}
+		if err == nil {
+			fmt.Println("node is healthy")
+			c.JSON(200, gin.H{})
+		} else {
+
+			fmt.Println("ERR: while checking health:", err)
+			c.JSON(500, gin.H{"error": err.Error()})
+		}
+	})
+
+	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
 
 func checkNodeHealth() error {
