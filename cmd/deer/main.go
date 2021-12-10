@@ -85,7 +85,7 @@ func getLatestBlockNumber(address string) (int, error) {
 
 	result := resp.Result().(*StatusResult)
 	if result == nil {
-		return 0, nil
+		return 0, fmt.Errorf("unmarshalling error, cannot get StatusResult")
 	}
 
 	return result.SyncInfo.LatestBlockHeight, nil
