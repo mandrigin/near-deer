@@ -12,6 +12,8 @@ var (
 	flagNetwork     = flag.String("network", "mainnet", "select network: mainnet or testnet")
 	flagNodeAddress = flag.String("node", "http://localhost:3030", "node to check against")
 	flagThreshold   = flag.Int("threshold", 3, "health threshold, how many blocks behind is it okay to be for a local node")
+	flagPort        = flag.Int("port", 8080, "port on which to serve")
+	flagHost        = flag.String("host", "localhost", "host on which to serve (default=localhost)")
 )
 
 func main() {
@@ -20,18 +22,18 @@ func main() {
 	r := gin.Default()
 	r.GET("/health", func(c *gin.Context) {
 		err := checkNodeHealth()
+		fmt.Println("DEBUG: initiating healthcheck")
 
 		if err == nil {
-			fmt.Println("node is healthy")
+			fmt.Println("INFO: node is healthy")
 			c.JSON(200, gin.H{})
 		} else {
-
 			fmt.Println("ERR: while checking health:", err)
 			c.JSON(500, gin.H{"error": err.Error()})
 		}
 	})
 
-	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	r.Run(fmt.Sprintf("%s:%v", *flagHost, *flagPort))
 }
 
 func checkNodeHealth() error {
