@@ -1,5 +1,5 @@
-# near-deer
-simple utility to compare the node's latest block with the source of truth (checks against https://rpc.<network>.near.org/status)
+# Near Deer
+A simple utility to compare the node's latest block with the source of truth (checks against https://rpc.<network>.near.org/status)
 
 
 Example usage:
