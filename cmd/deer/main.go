@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"os"
 
 	resty "github.com/go-resty/resty/v2"
 )
@@ -17,31 +16,36 @@ var (
 func main() {
 	flag.Parse()
 
+	err := checkNodeHealth()
+	if err != nil {
+		fmt.Println("ERR: while checking health:", err)
+	}
+}
+
+func checkNodeHealth() error {
 	fmt.Println("checking health", *flagNetwork, *flagNodeAddress)
 
 	sourceOfTruthBlock, err := getLatestBlockNumber(
 		getSourceOfTruthAddressForNetwork(*flagNetwork),
 	)
 	if err != nil {
-		fmt.Printf("ERR: can't get source of truth block number: %v", err)
-		os.Exit(1)
+		return fmt.Errorf("can't get source of truth block number. err=%w", err)
 	}
 	localNodeBlock, err := getLatestBlockNumber(
 		*flagNodeAddress,
 	)
 	if err != nil {
-		fmt.Printf("ERR: can't get local node block number: %v", err)
-		os.Exit(2)
+		return fmt.Errorf("can't get local node block number. err=%w", err)
 	}
 
 	diff := sourceOfTruthBlock - localNodeBlock
 
 	if diff > *flagThreshold { //negative is fine
-		fmt.Println("ERR: The local node is too far away from the source of truth.", "difference", diff)
-		os.Exit(3)
+		return fmt.Errorf("the local node is too far away from the source of truth. diff=%v", diff)
 	}
 
 	fmt.Println("node is healthy", "difference", diff)
+	return nil
 }
 
 type StatusResult struct {
