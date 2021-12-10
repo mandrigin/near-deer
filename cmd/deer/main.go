@@ -16,6 +16,8 @@ var (
 func main() {
 	flag.Parse()
 
+	fmt.Println("checking health", *flagNetwork, *flagNodeAddress)
+
 	err := checkNodeHealth()
 	if err != nil {
 		fmt.Println("ERR: while checking health:", err)
@@ -23,7 +25,6 @@ func main() {
 }
 
 func checkNodeHealth() error {
-	fmt.Println("checking health", *flagNetwork, *flagNodeAddress)
 
 	sourceOfTruthBlock, err := getLatestBlockNumber(
 		getSourceOfTruthAddressForNetwork(*flagNetwork),
