@@ -1,5 +1,8 @@
 # Near Deer
 A simple utility to compare the node's latest block with the source of truth (checks against https://rpc.<network>.near.org/status)
+  
+  
+It provides an HTTP endpoint `/health` that returns either 200OK is the node is in sync, and 500 if it is not.
 
 
 Example usage:
